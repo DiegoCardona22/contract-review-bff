@@ -1,0 +1,104 @@
+name: contract-review
+
+# One Dockerfile, four services. Each x-node-service entry only differs by the
+# workspace it runs, so drift between them is structurally impossible.
+x-node-service: &node-service
+  build:
+    context: .
+    dockerfile: Dockerfile
+  restart: unless-stopped
+  networks: [internal]
+
+services:
+  documents:
+    <<: *node-service
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args: { WORKSPACE: services/documents }
+    environment:
+      PORT: 4001
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+      # Fault injection, off unless you set it:
+      #   CHAOS_DOWN=true docker compose up documents
+      CHAOS_LATENCY_MS: ${DOCUMENTS_CHAOS_LATENCY_MS:-0}
+      CHAOS_FAILURE_RATE: ${DOCUMENTS_CHAOS_FAILURE_RATE:-0}
+      CHAOS_DOWN: ${DOCUMENTS_CHAOS_DOWN:-false}
+    ports: ["4001:4001"]
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://localhost:4001/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+      start_period: 5s
+
+  users:
+    <<: *node-service
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args: { WORKSPACE: services/users }
+    environment:
+      PORT: 4002
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+      CHAOS_LATENCY_MS: ${USERS_CHAOS_LATENCY_MS:-0}
+      CHAOS_FAILURE_RATE: ${USERS_CHAOS_FAILURE_RATE:-0}
+      CHAOS_DOWN: ${USERS_CHAOS_DOWN:-false}
+    ports: ["4002:4002"]
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://localhost:4002/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+      start_period: 5s
+
+  analysis:
+    <<: *node-service
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args: { WORKSPACE: services/analysis }
+    environment:
+      PORT: 4003
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+      CHAOS_LATENCY_MS: ${ANALYSIS_CHAOS_LATENCY_MS:-0}
+      CHAOS_FAILURE_RATE: ${ANALYSIS_CHAOS_FAILURE_RATE:-0}
+      CHAOS_DOWN: ${ANALYSIS_CHAOS_DOWN:-false}
+    ports: ["4003:4003"]
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://localhost:4003/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+      start_period: 5s
+
+  bff:
+    <<: *node-service
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args: { WORKSPACE: apps/bff }
+    environment:
+      PORT: 4000
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+      DOCUMENTS_URL: http://documents:4001
+      USERS_URL: http://users:4002
+      ANALYSIS_URL: http://analysis:4003
+    ports: ["4000:4000"]
+    # `service_started`, not `service_healthy`, on purpose. The BFF is built to
+    # survive dead upstreams — refusing to boot without them would contradict
+    # the whole design and make the degradation demo impossible to run.
+    depends_on:
+      documents: { condition: service_started }
+      users: { condition: service_started }
+      analysis: { condition: service_started }
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://localhost:4000/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+      start_period: 5s
+
+networks:
+  internal:
+    driver: bridge
