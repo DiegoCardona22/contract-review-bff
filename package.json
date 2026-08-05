@@ -17,5 +17,9 @@
     "typescript": "^5.7.2",
     "typescript-eslint": "^8.28.0",
     "vitest": "^3.1.1"
+  },
+  "pnpm": {
+    "//": "pnpm blocks postinstall scripts by default. Anything listed here is an explicit exception, reviewed on purpose rather than allowed wholesale.",
+    "onlyBuiltDependencies": ["esbuild"]
   }
 }
