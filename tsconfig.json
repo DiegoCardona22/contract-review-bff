@@ -1,0 +1,11 @@
+{
+  "files": [],
+  "references": [
+    { "path": "packages/contracts" },
+    { "path": "packages/service-kit" },
+    { "path": "services/documents" },
+    { "path": "services/users" },
+    { "path": "services/analysis" },
+    { "path": "apps/bff" }
+  ]
+}
