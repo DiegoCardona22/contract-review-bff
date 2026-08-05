@@ -1,0 +1,21 @@
+{
+  "name": "contract-review-bff",
+  "private": true,
+  "type": "module",
+  "engines": { "node": ">=22" },
+  "packageManager": "pnpm@11.20.0",
+  "scripts": {
+    "build": "pnpm -r build",
+    "test": "pnpm -r test",
+    "lint": "eslint . --max-warnings 0",
+    "typecheck": "tsc -b --pretty",
+    "dev": "docker compose up --build"
+  },
+  "devDependencies": {
+    "@types/node": "^24.3.0",
+    "eslint": "^9.24.0",
+    "typescript": "^5.7.2",
+    "typescript-eslint": "^8.28.0",
+    "vitest": "^3.1.1"
+  }
+}
