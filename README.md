@@ -93,9 +93,12 @@ Unit tests cover the resilience primitives with an injected clock — no `setTim
 
 TypeScript (strict, `noUncheckedIndexedAccess`) · NestJS · Fastify · Zod · Vitest · Docker Compose · GitHub Actions
 
-## Decision records
+## Documentation
 
-Architecture decisions and what was rejected live in [`docs/adr/`](docs/adr/).
+- **[Architecture](docs/architecture.md)** — request flow, layering, failure behaviour, and the three states of "no data"
+- **[ADR 0001](docs/adr/0001-why-a-bff.md)** — why a BFF, and why not GraphQL
+- **[ADR 0002](docs/adr/0002-degrade-per-field.md)** — degrade per field, not per request
+- **[ADR 0003](docs/adr/0003-breaker-outside-retries.md)** — why the breaker wraps the retry loop
 
 ## Status
 
