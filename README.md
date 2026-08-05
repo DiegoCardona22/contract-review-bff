@@ -1,6 +1,6 @@
 # contract-review-bff
 
-[![CI](https://github.com/DiegoCardona22/contract-review-bff/actions/workflows/ci.yml/badge.svg)](https://github.com/DiegoCardona22/contract-review-bff/actions/workflows/ci.yml)
+[![CI](https://github.com/diegocardonah/contract-review-bff/actions/workflows/ci.yml/badge.svg)](https://github.com/diegocardonah/contract-review-bff/actions/workflows/ci.yml)
 
 A Backend-for-Frontend that composes four legal-tech microservices into the payloads a contract-review UI actually needs — and keeps serving when they misbehave.
 
