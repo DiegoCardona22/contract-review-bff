@@ -2,5 +2,9 @@ packages:
   - "apps/*"
   - "services/*"
   - "packages/*"
+
+# pnpm blocks postinstall scripts by default. Each entry here is an explicit,
+# reviewed exception rather than disabling the policy wholesale.
+# esbuild's postinstall links the platform binary that Vitest needs to run.
 allowBuilds:
-  esbuild: set this to true or false
+  esbuild: true

@@ -12,5 +12,8 @@
     "@contract-review/contracts": "workspace:*",
     "@contract-review/service-kit": "workspace:*",
     "fastify": "^5.2.0"
+  },
+  "devDependencies": {
+    "vitest": "^3.1.1"
   }
 }
