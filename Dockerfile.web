@@ -1,0 +1,35 @@
+# syntax=docker/dockerfile:1
+#
+# The web client gets its own Dockerfile because its runtime is nothing like
+# the services': there is no Node process at all, just static files.
+#
+# `vite preview` is explicitly not a production server — it exists to sanity
+# check a build locally. Serving the compiled SPA from nginx is both closer to
+# how this would actually ship and lets the same container terminate /api,
+# so the browser only ever talks to one origin and CORS never applies.
+
+FROM node:24-alpine AS build
+RUN corepack enable
+WORKDIR /repo
+
+COPY pnpm-lock.yaml pnpm-workspace.yaml package.json ./
+COPY packages/contracts/package.json packages/contracts/
+COPY packages/service-kit/package.json packages/service-kit/
+COPY services/documents/package.json services/documents/
+COPY services/users/package.json services/users/
+COPY services/analysis/package.json services/analysis/
+COPY apps/bff/package.json apps/bff/
+COPY apps/web/package.json apps/web/
+RUN --mount=type=cache,id=pnpm,target=/root/.local/share/pnpm/store \
+    pnpm install --frozen-lockfile
+
+COPY tsconfig.base.json tsconfig.json ./
+COPY packages packages
+COPY apps/web apps/web
+RUN pnpm --filter @contract-review/contracts build \
+ && pnpm --filter @contract-review/web build
+
+FROM nginx:1.27-alpine AS runtime
+COPY apps/web/nginx.conf /etc/nginx/conf.d/default.conf
+COPY --from=build /repo/apps/web/dist /usr/share/nginx/html
+EXPOSE 5173

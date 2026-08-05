@@ -99,6 +99,27 @@ services:
       retries: 5
       start_period: 5s
 
+  # Static build served by nginx, which also proxies /api to the BFF so the
+  # browser only ever talks to one origin.
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile.web
+    restart: unless-stopped
+    networks: [internal]
+    ports: ["5173:5173"]
+    depends_on:
+      bff: { condition: service_started }
+    healthcheck:
+      # 127.0.0.1 rather than localhost: inside the container localhost
+      # resolves to ::1 first, and nginx only listens on IPv4, so the check
+      # would report unhealthy while the service is serving fine.
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:5173/"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+      start_period: 5s
+
 networks:
   internal:
     driver: bridge

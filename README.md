@@ -30,15 +30,17 @@ This BFF makes one call return one shaped payload, in parallel, and treats a mis
 - **N+1 avoidance** — list hydration batches owner and analysis lookups instead of one call per row
 - **Schema validation at the seams** — Zod on both sides of every boundary, so an upstream shape change fails loudly and locally
 - **Correlation IDs** — one id follows a request from client through BFF into every upstream log
+- **An honest UI** — the client reads `degraded[]` and distinguishes "not analysed yet" from "analysis unavailable", instead of rendering an empty state that reads as good news
 
 ## Architecture
 
 ```
-                    ┌─────────────┐
-   browser  ───────▶│     BFF     │
-                    │   (NestJS)  │
-                    └──────┬──────┘
-                           │  parallel, each behind its own breaker
+   ┌──────────┐     ┌─────────────┐
+   │   web    │────▶│     BFF     │
+   │ (nginx)  │     │   (NestJS)  │
+   │  :5173   │     └──────┬──────┘
+   └──────────┘            │
+       nginx proxies /api  │  parallel, each behind its own breaker
               ┌────────────┼────────────┐
               ▼            ▼            ▼
         ┌──────────┐ ┌──────────┐ ┌──────────┐
@@ -97,4 +99,4 @@ Architecture decisions and what was rejected live in [`docs/adr/`](docs/adr/).
 
 ## Status
 
-Work in progress, built in the open. See the commit history for how it got here.
+Runs end to end with `docker compose up`. Built in the open. See the commit history for how it got here.
