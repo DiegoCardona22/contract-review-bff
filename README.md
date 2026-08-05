@@ -1,5 +1,7 @@
 # contract-review-bff
 
+[![CI](https://github.com/DiegoCardona22/contract-review-bff/actions/workflows/ci.yml/badge.svg)](https://github.com/DiegoCardona22/contract-review-bff/actions/workflows/ci.yml)
+
 A Backend-for-Frontend that composes four legal-tech microservices into the payloads a contract-review UI actually needs — and keeps serving when they misbehave.
 
 > **Why this exists.** A contract overview screen needs the document, its owner, its risk analysis and its activity. Four services own those. Letting the browser fan out to all four means four round trips, CORS on every service, and a UI that breaks whenever the slowest one hiccups. This repo is the alternative, built to be read rather than just run.
